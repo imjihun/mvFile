@@ -1,5 +1,5 @@
 
-const { convertXlsxWorksheetToJson } = require(`../utils/xlsx.js`)
+const { convertXlsxFileListToJson } = require(`../utils/xlsx.js`)
 const { copyFile, filecallback } = require(`../utils/file.js`)
 const { config } = require(`./config.js`)
 
@@ -33,35 +33,31 @@ const getData = function (columnTitleList, dataFormat, data) {
 }
 
 const xlsxToJson = async () => {
+  const result = await convertXlsxFileListToJson(config.xlsxConfigList)
+  if (!result) return
+
   const resData = {}
+  for (let i = 0; i < result.dataList.length; i++) {
+    const data = result.dataList[i]
+    const user = getData(result.info.columnTitleList, config.userDataFormat, data)
+    const album = getData(result.info.columnTitleList, config.albumDataFormat, data)
+    const song = getData(result.info.columnTitleList, config.songDataFormat, data)
 
-  const resultList = await Promise.all(config.xlsxPathList.map(xlsxPath => convertXlsxWorksheetToJson(xlsxPath, config.xlsxSheetname)))
+    if (!resData[user.name]) {
+      resData[user.name] = { ...user, }
+    }
 
-  const _xlsxToJson = async (result) => {
-    for (let i = 0; i < result.dataList.length; i++) {
-      const data = result.dataList[i]
-      const user = getData(result.info.columnTitleList, config.userDataFormat, data)
-      const album = getData(result.info.columnTitleList, config.albumDataFormat, data)
-      const song = getData(result.info.columnTitleList, config.songDataFormat, data)
+    if (!resData[user.name][album.name]) {
+      resData[user.name][album.name] = { ...album, }
+    }
 
-      if (!resData[user.name]) {
-        resData[user.name] = { ...user, }
-      }
-
-      if (!resData[user.name][album.name]) {
-        resData[user.name][album.name] = { ...album, }
-      }
-
-      if (!resData[user.name][album.name][song.name]) {
-        resData[user.name][album.name][song.name] = { ...song, }
-      }
-      else {
-        __printError(`[xlsxToJson][_xlsxToJson] duplicated data \n\t [userId=${user.mid}, user='${user.name}', albumId=${album.mid}, album='${album.name}', songId=${song.mid}, song='${song.name}'] \n\t [userId=${resData[user.name].mid}, user='${resData[user.name].name}', albumId=${resData[user.name][album.name].mid}, album='${resData[user.name][album.name].name}', songId=${resData[user.name][album.name][song.name].mid}, song='${resData[user.name][album.name][song.name].name}']`)
-      }
+    if (!resData[user.name][album.name][song.name]) {
+      resData[user.name][album.name][song.name] = { ...song, }
+    }
+    else {
+      __printError(`[xlsxToJson][_xlsxToJson] duplicated data \n\t [userId=${user.mid}, user='${user.name}', albumId=${album.mid}, album='${album.name}', songId=${song.mid}, song='${song.name}'] \n\t [userId=${resData[user.name].mid}, user='${resData[user.name].name}', albumId=${resData[user.name][album.name].mid}, album='${resData[user.name][album.name].name}', songId=${resData[user.name][album.name][song.name].mid}, song='${resData[user.name][album.name][song.name].name}']`)
     }
   }
-
-  await Promise.all(resultList.map(result => _xlsxToJson(result)))
 
   return resData
 }
@@ -99,8 +95,12 @@ const compare = async () => {
 }
 
 const run = async () => {
+  const _startTime = new Date().getTime()
+  __printLog(`[run] start`)
 
   const json = await xlsxToJson()
+
+  __printLog(`[run] readed xlsx ms=${new Date().getTime() - _startTime}`)
 
   let outHomeDir = config.fileOutHomedir
   let _outHomeDir = outHomeDir
@@ -174,7 +174,8 @@ const run = async () => {
     return true
   })
 
-  compare()
+  await compare()
+  __printLog(`[run] end ms=${new Date().getTime() - _startTime}`)
 }
 
 run()

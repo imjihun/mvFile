@@ -147,4 +147,36 @@ const convertXlsxWorksheetToJson = async function (xlsxPath, worksheetName, isEx
   }
 }
 
-module.exports = { convertXlsxWorksheetToJson }
+const convertXlsxFileListToJson = async function (xlsxConfigList, isExistTitleRow = true) {
+  if (!Array.isArray(xlsxConfigList)) return
+  let argvValidation = xlsxConfigList.reduce((ret, xlsxConfig) => ret && xlsxConfig && xlsxConfig.path && xlsxConfig.sheetname, true)
+  if (!argvValidation) return
+
+  const resultList = await Promise.all(xlsxConfigList.map(xlsxConfig => convertXlsxWorksheetToJson(xlsxConfig.path, xlsxConfig.sheetname, isExistTitleRow)))
+
+  let result = null
+  for (let i = 0; i < resultList.length; i++) {
+    const _result = resultList[i]
+
+    if (!result) {
+      result = _result
+    }
+    else {
+      const isVal = result.info.columnTitleList.reduce((ret, elem, index) => ret && elem && _result.info.columnTitleList[index] && elem === _result.info.columnTitleList[index], true)
+      if (!isVal) {
+        _printError(`[convertXlsxFileListToJson] column title is diff idx1=${0}, idx2=${i}, column1=${result.info.columnTitleList && JSON.stringify(result.info.columnTitleList) || ''}, column2=${_result.info.columnTitleList && JSON.stringify(_result.info.columnTitleList) || ''}`)
+        return
+      }
+
+      result.dataList.push(..._result.dataList)
+    }
+
+  }
+
+  return result
+}
+
+module.exports = {
+  convertXlsxWorksheetToJson,
+  convertXlsxFileListToJson,
+}
