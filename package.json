@@ -1,0 +1,17 @@
+{
+  "name": "contentsuploader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src > log/node.log",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "form-data": "^2.5.1",
+    "moment": "^2.24.0",
+    "xlsx": "^0.15.1"
+  }
+}
