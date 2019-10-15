@@ -35,14 +35,7 @@ const getData = function (columnTitleList, dataFormat, data) {
 const xlsxToJson = async () => {
   const resData = {}
 
-  const result1 = await convertXlsxWorksheetToJson(config.xlsxPath1, config.xlsxSheetname)
-  if (!result1) return
-  const result2 = await convertXlsxWorksheetToJson(config.xlsxPath2, config.xlsxSheetname)
-  if (!result2) return
-  const result3 = await convertXlsxWorksheetToJson(config.xlsxPath3, config.xlsxSheetname)
-  if (!result3) return
-  const result4 = await convertXlsxWorksheetToJson(config.xlsxPath4, config.xlsxSheetname)
-  if (!result4) return
+  const resultList = await Promise.all(config.xlsxPathList.map(xlsxPath => convertXlsxWorksheetToJson(xlsxPath, config.xlsxSheetname)))
 
   const _xlsxToJson = async (result) => {
     for (let i = 0; i < result.dataList.length; i++) {
@@ -68,10 +61,7 @@ const xlsxToJson = async () => {
     }
   }
 
-  await _xlsxToJson(result1)
-  await _xlsxToJson(result2)
-  await _xlsxToJson(result3)
-  await _xlsxToJson(result4)
+  await Promise.all(resultList.map(result => _xlsxToJson(result)))
 
   return resData
 }

@@ -1,9 +1,9 @@
 
 const path = require(`path`)
-const dataHome = '/Users/jihunlim/Desktop/git/utils/mvDir/data/file'
-const outHome = '/Users/jihunlim/Desktop/git/utils/mvDir/out/file'
+const dataHome = path.join(__dirname, '..', 'data', 'file')
+const outHome = path.join(__dirname, '..', 'out', 'file')
 
-const xlsxHome = '/Users/jihunlim/Desktop/git/utils/mvDir/data/xlsx'
+const xlsxHome = path.join(__dirname, '..', 'data', 'xlsx')
 
 const config = {
   convertColumnTitle: {
@@ -34,10 +34,12 @@ const config = {
     melonLink: `melonLink`,
     imageUrl: `imageUrl`,
   },
-  xlsxPath1: path.join(xlsxHome, `new_trackList_01.xlsx`),
-  xlsxPath2: path.join(xlsxHome, `new_trackList_02.xlsx`),
-  xlsxPath3: path.join(xlsxHome, `new_trackList_03.xlsx`),
-  xlsxPath4: path.join(xlsxHome, `new_trackList_04.xlsx`),
+  xlsxPathList: [
+    path.join(xlsxHome, `new_trackList_01.xlsx`),
+    path.join(xlsxHome, `new_trackList_02.xlsx`),
+    path.join(xlsxHome, `new_trackList_03.xlsx`),
+    path.join(xlsxHome, `new_trackList_04.xlsx`),
+  ],
   xlsxExt: '.xlsx',
   xlsxSheetname: `Sheet 1`,
   fileHomedir: dataHome,
