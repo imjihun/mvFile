@@ -84,9 +84,9 @@ const convertXlsxWorksheetToJson = async function (xlsxPath, worksheetName, isEx
           for (let columnIdx = columnStartIdx, columnTitleIdx = 0; columnIdx < columnLength; columnIdx++ , columnTitleIdx++) {
             const cell = worksheet[XLSX.utils.encode_cell({ r: rowIdx, c: columnIdx })]
             const cellValue = cell && cell['w']
-            row[columnTitleList[columnTitleIdx]] = cellValue
+            if (cellValue) { row[columnTitleList[columnTitleIdx]] = cellValue }
           }
-          dataList.push(row)
+          if (Object.keys(row).length > 0) { dataList.push(row) }
 
           if (IS_DEV && rowIdx % 100 === 0) {
             let str = `${_debugLogString} ${Math.ceil((rowIdx - rowStartIdx) / rowLength * 100)}%`
@@ -138,7 +138,7 @@ const convertXlsxWorksheetToJson = async function (xlsxPath, worksheetName, isEx
       }
     }
 
-    _printLog(`[convertXlsxWorksheetToJson] end. ms=${new Date().getTime() - startTime}`)
+    _printLog(`[convertXlsxWorksheetToJson] end. ms=${new Date().getTime() - startTime}, columnLength=${columnTitleList.length}, rowLength=${dataList.length}`)
 
     return { info: { columnTitleList }, dataList }
   }
