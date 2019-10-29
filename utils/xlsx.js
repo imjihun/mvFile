@@ -148,6 +148,9 @@ const convertXlsxWorksheetToJson = async function (xlsxPath, worksheetName, isEx
 }
 
 const convertXlsxFileListToJson = async function (xlsxConfigList, isExistTitleRow = true) {
+  const _printLog = global.__printLog || console.log
+  const _printError = global.__printError || console.log
+
   if (!Array.isArray(xlsxConfigList)) return
   let argvValidation = xlsxConfigList.reduce((ret, xlsxConfig) => ret && xlsxConfig && xlsxConfig.path && xlsxConfig.sheetname, true)
   if (!argvValidation) return
